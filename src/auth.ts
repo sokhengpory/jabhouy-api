@@ -1,6 +1,6 @@
-import { betterAuth } from "better-auth";
+import { APIError, betterAuth } from "better-auth";
 import { LibsqlDialect } from "@libsql/kysely-libsql";
-import { username } from "better-auth/plugins";
+import { createAuthMiddleware, openAPI, username } from "better-auth/plugins";
 
 export const auth = betterAuth({
   database: {
@@ -12,8 +12,10 @@ export const auth = betterAuth({
   },
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
-  plugins: [username()],
+  plugins: [username(), openAPI()],
   emailAndPassword: {
     enabled: true,
+    minPasswordLength: 4,
   },
+  trustedOrigins: ["http://localhost:5173"],
 });
