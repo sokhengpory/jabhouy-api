@@ -3,6 +3,7 @@ import { db } from "./db";
 import { items } from "./db/schema";
 import { auth } from "./auth";
 import { cors } from "hono/cors";
+import { eq } from "drizzle-orm";
 
 const app = new Hono<{
   Variables: {
@@ -11,25 +12,24 @@ const app = new Hono<{
   };
 }>();
 
-app.use(
-  "*",
-  cors({
-    origin: "http://localhost:5173",
-    allowHeaders: ["Content-Type", "Authorization"],
-    allowMethods: ["POST", "GET", "OPTIONS"],
-    exposeHeaders: ["Content-Length"],
-    maxAge: 600,
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: ["http://localhost:5173"],
+  credentials: true,
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+  exposeHeaders: ['Content-Length', 'X-Requested-With'],
+  maxAge: 600,
+}));
 
 app.use("*", async (c, next) => {
+  if (c.req.path.startsWith("/api/auth") || c.req.path === "/") {
+    return next();
+  }
+
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
 
   if (!session) {
-    c.set("user", null);
-    c.set("session", null);
-    return next();
+    return c.json({ error: "Unauthorized" }, 401);
   }
 
   c.set("user", session.user);
@@ -46,15 +46,41 @@ app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
 
 app.get("/", (c) => c.json({ message: "Jabhouy API" }));
 
-app.get("/me", async (c) => {
-  const result = await auth.api.listUserAccounts();
-  return c.json(result);
-});
 
 app.get("/items", async (c) => {
   const result = await db.select().from(items);
+  return c.json(result);
+});
+
+app.get("/items/:id", async (c) => {
+  const { id } = c.req.param();
+  const [result] = await db
+    .select()
+    .from(items)
+    .where(eq(items.id, Number(id)));
 
   return c.json(result);
+});
+
+app.delete("/items/:id", async (c) => {
+  const { id } = c.req.param();
+  const itemId = Number(id);
+
+  try {
+    const [deletedItem] = await db
+      .delete(items)
+      .where(eq(items.id, itemId))
+      .returning();
+
+    if (!deletedItem) {
+      return c.json({ error: "Item not found" }, 404);
+    }
+
+    return c.json({ message: "Item deleted successfully", item: deletedItem });
+  } catch (err) {
+    console.error("Error deleting item:", err);
+    return c.json({ error: "Failed to delete item" }, 500);
+  }
 });
 
 export default app;
