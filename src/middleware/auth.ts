@@ -1,18 +1,18 @@
-import { auth } from "@/lib/auth";
-import { MiddlewareHandler } from "hono";
+import { auth } from '@/lib/auth';
+import type { MiddlewareHandler } from 'hono';
 
 export const authMiddleware: MiddlewareHandler = async (c, next) => {
-  if (c.req.path.startsWith("/auth")) {
-    return next();
-  }
+	if (c.req.path.startsWith('/auth')) {
+		return next();
+	}
 
-  const session = await auth.api.getSession({ headers: c.req.raw.headers });
-  if (!session) {
-    return c.json({ code: "Unauthorized" }, 401);
-  }
+	const session = await auth.api.getSession({ headers: c.req.raw.headers });
+	if (!session) {
+		return c.json({ code: 'Unauthorized' }, 401);
+	}
 
-  c.set("user", session.user);
-  c.set("session", session.session);
+	c.set('user', session.user);
+	c.set('session', session.session);
 
-  return next();
+	return next();
 };

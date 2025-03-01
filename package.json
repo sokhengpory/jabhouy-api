@@ -1,21 +1,27 @@
 {
-  "name": "jabhouy-api",
-  "scripts": {
-    "dev": "bun run --hot src/index.ts",
-    "db:generate": "bun drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio",
-    "db:push": "drizzle-kit push"
-  },
-  "dependencies": {
-    "@libsql/client": "^0.14.0",
-    "@libsql/kysely-libsql": "^0.4.1",
-    "better-auth": "^1.1.14",
-    "drizzle-orm": "^0.38.4",
-    "hono": "^4.6.18"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "drizzle-kit": "^0.30.2"
-  }
+	"name": "jabhouy-api",
+	"type": "module",
+	"scripts": {
+		"dev": "tsx watch --env-file=.env src/index.ts",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "drizzle-kit migrate",
+		"db:studio": "drizzle-kit studio",
+		"db:push": "drizzle-kit push",
+		"lint": "biome check --write src"
+	},
+	"dependencies": {
+		"@hono/node-server": "^1.13.8",
+		"@libsql/client": "^0.14.0",
+		"@libsql/kysely-libsql": "^0.4.1",
+		"better-auth": "^1.1.14",
+		"drizzle-orm": "^0.38.4",
+		"hono": "^4.6.18",
+		"zod": "^3.24.2"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@types/node": "^22.13.8",
+		"drizzle-kit": "^0.30.2",
+		"tsx": "^4.19.3"
+	}
 }
