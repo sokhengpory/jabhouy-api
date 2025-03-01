@@ -1,8 +1,7 @@
 {
   "name": "jabhouy-api",
   "scripts": {
-    "start": "vercel dev",
-    "deploy": "vercel",
+    "dev": "bun run --hot src/index.ts",
     "db:generate": "bun drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
@@ -17,7 +16,6 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "drizzle-kit": "^0.30.2",
-    "vercel": "^41.3.0"
+    "drizzle-kit": "^0.30.2"
   }
 }

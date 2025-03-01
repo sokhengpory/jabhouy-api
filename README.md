@@ -1,11 +1,11 @@
 To install dependencies:
 ```sh
-pnpm install
+bun install
 ```
 
 To run:
 ```sh
-pnpm run dev
+bun run dev
 ```
 
 open http://localhost:3000
