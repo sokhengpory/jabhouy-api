@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"target": "ESNext",
+		"module": "ESNext",
 		"moduleResolution": "Bundler",
 		"strict": true,
 		"verbatimModuleSyntax": true,
@@ -9,12 +10,20 @@
 		"moduleDetection": "force",
 		"isolatedModules": true,
 		"noEmit": true,
-		"types": ["node"],
+		"types": [
+			"node"
+		],
 		"jsx": "react-jsx",
 		"jsxImportSource": "hono/jsx",
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["./src/*"]
-		}
+			"@/*": [
+				"./src/*"
+			]
+		},
+		"outDir": "./dist"
+	},
+	"tsc-alias": {
+		"resolveFullPaths": true
 	}
 }
