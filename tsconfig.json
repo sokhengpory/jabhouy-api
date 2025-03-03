@@ -1,21 +1,18 @@
 {
 	"compilerOptions": {
-		"target": "ESNext",
-		"module": "ESNext",
+		"target": "ES2022",
+		"module": "ES2022",
 		"moduleResolution": "Bundler",
 		"strict": true,
 		"verbatimModuleSyntax": true,
 		"skipLibCheck": true,
-		"resolveJsonModule": true,
 		"moduleDetection": "force",
-		"isolatedModules": true,
-		"noEmit": true,
 		"types": [
 			"node"
 		],
 		"jsx": "react-jsx",
 		"jsxImportSource": "hono/jsx",
-		"baseUrl": ".",
+		"baseUrl": "./",
 		"paths": {
 			"@/*": [
 				"./src/*"
