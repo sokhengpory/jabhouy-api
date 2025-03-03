@@ -1,5 +1,10 @@
 import { sql } from 'drizzle-orm';
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import {
+	createInsertSchema,
+	createSelectSchema,
+	createUpdateSchema,
+} from 'drizzle-zod';
 
 export const items = sqliteTable('items', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
@@ -14,13 +19,17 @@ export const items = sqliteTable('items', {
 	note: text('note'),
 	imageUrl: text('image_url'),
 	category: text('category'),
-	createdAt: integer('created_at', { mode: 'timestamp' })
-		.default(sql`(unixepoch())`)
-		.notNull(),
+	createdAt: integer('created_at', { mode: 'timestamp' }).default(
+		sql`(unixepoch())`,
+	),
 	updatedAt: integer('updated_at', { mode: 'timestamp' }).$onUpdate(
 		() => new Date(),
 	),
 });
+
+export const itemSchema = createSelectSchema(items);
+export const insertItemSchema = createInsertSchema(items);
+export const updateItemSchema = createUpdateSchema(items);
 
 export type Item = typeof items.$inferSelect;
 export type InsertItem = typeof items.$inferInsert;

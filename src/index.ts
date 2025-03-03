@@ -1,29 +1,49 @@
 import { serve } from '@hono/node-server';
-import { Hono } from 'hono';
+import { OpenAPIHono } from '@hono/zod-openapi';
+import { apiReference } from '@scalar/hono-api-reference';
 import { auth } from './lib/auth';
 import { authMiddleware } from './middleware/auth';
-import { item } from './route/item';
+import { itemRoute } from './route/item';
 
-const app = new Hono<{
-	Variables: {
-		user: typeof auth.$Infer.Session.user | null;
-		session: typeof auth.$Infer.Session.session | null;
-	};
-}>();
+const openApiApp = new OpenAPIHono();
 
-app.use('*', authMiddleware);
+openApiApp.use('*', authMiddleware);
 
-app.onError((err, c) => {
+openApiApp.onError((err, c) => {
 	console.log(err);
 	return c.json({ error: err.message });
 });
 
-app.on(['POST', 'GET'], '/auth/**', (c) => auth.handler(c.req.raw));
-app.route('/', item);
+openApiApp.on(['POST', 'GET'], '/auth/**', (c) => auth.handler(c.req.raw));
+
+openApiApp.route('/', itemRoute);
+
+openApiApp.doc('/docs', {
+	openapi: '3.0.0',
+	info: {
+		version: '1.0.0',
+		title: 'Jabhouy API',
+	},
+});
+
+openApiApp.get(
+	'/reference',
+	apiReference({
+		theme: 'kepler',
+		layout: 'classic',
+		defaultHttpClient: {
+			targetKey: 'js',
+			clientKey: 'fetch',
+		},
+		spec: {
+			url: '/docs',
+		},
+	}),
+);
 
 serve(
 	{
-		fetch: app.fetch,
+		fetch: openApiApp.fetch,
 		port: 3000,
 	},
 	(info) => {
