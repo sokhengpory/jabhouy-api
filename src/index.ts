@@ -4,6 +4,7 @@ import { apiReference } from '@scalar/hono-api-reference';
 import { pinoLogger } from 'hono-pino';
 import pino from 'pino';
 import pretty from 'pino-pretty';
+import { notFound, onError } from 'stoker/middlewares';
 import { auth } from './lib/auth';
 import type { AppBindings } from './lib/type';
 import { authMiddleware } from './middleware/auth';
@@ -16,17 +17,15 @@ openApiApp.use(
 	pinoLogger({
 		pino: pino(
 			{
-				level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+				level: process.env.LOG_LEVEL || 'info',
 			},
 			process.env.NODE_ENV === 'production' ? undefined : pretty(),
 		),
 	}),
 );
 
-openApiApp.onError((err, c) => {
-	console.log(err);
-	return c.json({ error: err.message });
-});
+openApiApp.notFound(notFound);
+openApiApp.onError(onError);
 
 openApiApp.on(['POST', 'GET'], '/auth/**', (c) => auth.handler(c.req.raw));
 

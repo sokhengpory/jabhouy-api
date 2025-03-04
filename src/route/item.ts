@@ -5,11 +5,14 @@ import {
 	items,
 	updateItemSchema,
 } from '@/db/schema';
+import { notFoundSchema } from '@/lib/constants';
 import type { AppBindings } from '@/lib/type';
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 import { eq } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
+import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
+import { createMessageObjectSchema } from 'stoker/openapi/schemas';
 
 export const itemRoute = new OpenAPIHono<AppBindings>().basePath('/items');
 
@@ -33,6 +36,7 @@ const itemByIdRoute = createRoute({
 	},
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(itemSchema, 'Get item by id'),
+		[HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, 'Item not found'),
 	},
 });
 
@@ -46,7 +50,7 @@ const createItemRoute = createRoute({
 	responses: {
 		[HttpStatusCodes.CREATED]: jsonContent(
 			insertItemSchema,
-			'Created response',
+			'Created item response',
 		),
 	},
 });
@@ -59,7 +63,11 @@ const updateItemRoute = createRoute({
 		body: jsonContentRequired(updateItemSchema, 'Update item'),
 	},
 	responses: {
-		[HttpStatusCodes.OK]: jsonContent(updateItemSchema, 'Updated response'),
+		[HttpStatusCodes.OK]: jsonContent(
+			updateItemSchema,
+			'Updated item response',
+		),
+		[HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, 'Item not found'),
 	},
 });
 
@@ -74,9 +82,10 @@ const deleteItemRoute = createRoute({
 	},
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(
-			z.object({ message: z.string() }),
+			createMessageObjectSchema(HttpStatusPhrases.OK),
 			'Delete item',
 		),
+		[HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, 'Item not found'),
 	},
 });
 
@@ -91,6 +100,13 @@ itemRoute.openapi(itemByIdRoute, async (c) => {
 		.select()
 		.from(items)
 		.where(eq(items.id, Number(id)));
+
+	if (!result) {
+		return c.json(
+			{ message: HttpStatusPhrases.NOT_FOUND },
+			HttpStatusCodes.NOT_FOUND,
+		);
+	}
 
 	return c.json(result, HttpStatusCodes.OK);
 });
@@ -111,6 +127,13 @@ itemRoute.openapi(updateItemRoute, async (c) => {
 		.where(eq(items.id, Number(id)))
 		.returning();
 
+	if (!result) {
+		return c.json(
+			{ message: HttpStatusPhrases.NOT_FOUND },
+			HttpStatusCodes.NOT_FOUND,
+		);
+	}
+
 	return c.json(result, HttpStatusCodes.OK);
 });
 
@@ -122,6 +145,13 @@ itemRoute.openapi(deleteItemRoute, async (c) => {
 		.delete(items)
 		.where(eq(items.id, itemId))
 		.returning();
+
+	if (!deletedItem) {
+		return c.json(
+			{ message: HttpStatusPhrases.NOT_FOUND },
+			HttpStatusCodes.NOT_FOUND,
+		);
+	}
 
 	return c.json({ message: 'Item deleted successfully', item: deletedItem });
 });
