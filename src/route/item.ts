@@ -8,7 +8,7 @@ import {
 import { notFoundSchema } from '@/lib/constants';
 import type { AppBindings } from '@/lib/type';
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
@@ -90,16 +90,18 @@ const deleteItemRoute = createRoute({
 });
 
 itemRoute.openapi(itemsRoute, async (c) => {
-	const result = await db.select().from(items);
+	const userId = c.var.user.id;
+	const result = await db.select().from(items).where(eq(items.userId, userId));
 	return c.json(result, HttpStatusCodes.OK);
 });
 
 itemRoute.openapi(itemByIdRoute, async (c) => {
 	const { id } = c.req.param();
+	const userId = c.var.user.id;
 	const [result] = await db
 		.select()
 		.from(items)
-		.where(eq(items.id, Number(id)));
+		.where(and(eq(items.id, Number(id)), eq(items.userId, userId)));
 
 	if (!result) {
 		return c.json(
@@ -113,18 +115,24 @@ itemRoute.openapi(itemByIdRoute, async (c) => {
 
 itemRoute.openapi(createItemRoute, async (c) => {
 	const body = c.req.valid('json');
-	const [result] = await db.insert(items).values(body).returning();
+	const userId = c.var.user.id;
+	const [result] = await db
+		.insert(items)
+		.values({ ...body, userId })
+		.returning();
 
 	return c.json(result, HttpStatusCodes.CREATED);
 });
 
 itemRoute.openapi(updateItemRoute, async (c) => {
 	const { id } = c.req.param();
+	const userId = c.var.user.id;
 	const body = c.req.valid('json');
+
 	const [result] = await db
 		.update(items)
 		.set(body)
-		.where(eq(items.id, Number(id)))
+		.where(and(eq(items.id, Number(id)), eq(items.userId, userId)))
 		.returning();
 
 	if (!result) {
@@ -139,11 +147,12 @@ itemRoute.openapi(updateItemRoute, async (c) => {
 
 itemRoute.openapi(deleteItemRoute, async (c) => {
 	const { id } = c.req.param();
+	const userId = c.var.user.id;
 	const itemId = Number(id);
 
 	const [deletedItem] = await db
 		.delete(items)
-		.where(eq(items.id, itemId))
+		.where(and(eq(items.id, itemId), eq(items.userId, userId)))
 		.returning();
 
 	if (!deletedItem) {

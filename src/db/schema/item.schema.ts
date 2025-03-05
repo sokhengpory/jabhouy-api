@@ -42,8 +42,10 @@ export const items = sqliteTable(
 );
 
 export const itemSchema = createSelectSchema(items);
-export const insertItemSchema = createInsertSchema(items);
 export const updateItemSchema = createUpdateSchema(items);
+export const insertItemSchema = createInsertSchema(items).omit({
+	userId: true,
+});
 
 export type Item = typeof items.$inferSelect;
 export type InsertItem = typeof items.$inferInsert;
