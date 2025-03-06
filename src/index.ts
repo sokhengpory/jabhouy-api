@@ -18,6 +18,11 @@ openApiApp.use(
 		pino: pino(
 			{
 				level: process.env.LOG_LEVEL || 'info',
+				formatters: {
+					level(label) {
+						return { level: label };
+					},
+				},
 			},
 			process.env.NODE_ENV === 'production' ? undefined : pretty(),
 		),
