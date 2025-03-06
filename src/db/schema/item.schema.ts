@@ -21,7 +21,7 @@ export const items = sqliteTable(
 			.notNull()
 			.references(() => user.id, { onDelete: 'cascade' }),
 		name: text('name').notNull(),
-		defaultPrice: real('default_price').notNull(),
+		basePrice: real('base_price').notNull(),
 		defaultBatchPrice: real('default_batch_price'),
 		customerPrice: real('customer_price'),
 		sellerPrice: real('seller_price'),
