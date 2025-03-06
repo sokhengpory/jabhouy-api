@@ -8,7 +8,7 @@ import { notFound, onError } from 'stoker/middlewares';
 import { auth } from './lib/auth';
 import type { AppBindings } from './lib/type';
 import { authMiddleware } from './middleware/auth';
-import { itemRoute } from './route/item';
+import { itemHandler } from './route/items';
 
 const openApiApp = new OpenAPIHono<AppBindings>();
 
@@ -29,7 +29,7 @@ openApiApp.onError(onError);
 
 openApiApp.on(['POST', 'GET'], '/auth/**', (c) => auth.handler(c.req.raw));
 
-openApiApp.route('/', itemRoute);
+openApiApp.route('/', itemHandler);
 
 openApiApp.doc('/docs', {
 	openapi: '3.0.0',
