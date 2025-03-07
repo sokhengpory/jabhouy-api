@@ -3,7 +3,7 @@ import { category, selectCategorySchema } from '@/db/schema/category.schema';
 import { notFoundSchema } from '@/lib/constants';
 import type { AppRouteHandler } from '@/lib/type';
 import { createRoute, z } from '@hono/zod-openapi';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
@@ -36,13 +36,14 @@ export const updateCategoryRoute = createRoute({
 export const updateCategoryHandler: AppRouteHandler<
 	typeof updateCategoryRoute
 > = async (c) => {
+	const userId = c.var.user.id;
 	const { id } = c.req.valid('param');
 	const data = c.req.valid('json');
 
 	const [updatedCategory] = await db
 		.update(category)
 		.set(data)
-		.where(eq(category.id, id))
+		.where(and(eq(category.id, id), eq(category.userId, userId)))
 		.returning();
 
 	if (!updatedCategory) {

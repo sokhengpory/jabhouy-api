@@ -12,6 +12,7 @@ import {
 	createUpdateSchema,
 } from 'drizzle-zod';
 import { user } from './auth.schema';
+import { category } from './category.schema';
 
 export const items = sqliteTable(
 	'items',
@@ -30,7 +31,9 @@ export const items = sqliteTable(
 		batchSize: integer('batch_size'),
 		note: text('note'),
 		imageUrl: text('image_url'),
-		category: text('category'),
+		categoryId: integer('category_id').references(() => category.id, {
+			onDelete: 'set null',
+		}),
 		createdAt: integer('created_at', { mode: 'timestamp' }).default(
 			sql`(unixepoch())`,
 		),
@@ -38,7 +41,10 @@ export const items = sqliteTable(
 			() => new Date(),
 		),
 	},
-	(table) => [index('user_idx').on(table.userId)],
+	(table) => [
+		index('user_idx').on(table.userId),
+		index('category_idx').on(table.categoryId),
+	],
 );
 
 export const itemSchema = createSelectSchema(items);

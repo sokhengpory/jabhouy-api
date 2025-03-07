@@ -27,8 +27,13 @@ export const createCategoryRoute = createRoute({
 export const createCategoryHandler: AppRouteHandler<
 	typeof createCategoryRoute
 > = async (c) => {
+	const userId = c.var.user.id;
 	const data = c.req.valid('json');
-	const [categories] = await db.insert(category).values(data).returning();
+
+	const [categories] = await db
+		.insert(category)
+		.values({ ...data, userId })
+		.returning();
 
 	return c.json(categories, HttpStatusCodes.CREATED);
 };

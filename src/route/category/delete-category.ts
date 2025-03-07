@@ -1,9 +1,9 @@
 import { db } from '@/db';
 import { category } from '@/db/schema/category.schema';
-import { notFoundSchema, okSchema } from '@/lib/constants';
+import { notFoundSchema } from '@/lib/constants';
 import type { AppRouteHandler } from '@/lib/type';
 import { createRoute } from '@hono/zod-openapi';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent } from 'stoker/openapi/helpers';
@@ -18,7 +18,7 @@ export const deleteCategoryRoute = createRoute({
 	},
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(
-			okSchema,
+			notFoundSchema,
 			'Category deleted successfully',
 		),
 		[HttpStatusCodes.NOT_FOUND]: jsonContent(
@@ -31,11 +31,12 @@ export const deleteCategoryRoute = createRoute({
 export const deleteCategoryHandler: AppRouteHandler<
 	typeof deleteCategoryRoute
 > = async (c) => {
+	const userId = c.var.user.id;
 	const { id } = c.req.valid('param');
 
 	const [deletedCategory] = await db
 		.delete(category)
-		.where(eq(category.id, id))
+		.where(and(eq(category.id, id), eq(category.userId, userId)))
 		.returning();
 
 	if (!deletedCategory) {
