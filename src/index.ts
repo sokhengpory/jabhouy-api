@@ -8,7 +8,8 @@ import { notFound, onError } from 'stoker/middlewares';
 import { auth } from './lib/auth';
 import type { AppBindings } from './lib/type';
 import { authMiddleware } from './middleware/auth';
-import { itemHandler } from './route/items';
+import { categoryRouter } from './route/category';
+import { itemRouter } from './route/items';
 
 const openApiApp = new OpenAPIHono<AppBindings>();
 
@@ -18,11 +19,6 @@ openApiApp.use(
 		pino: pino(
 			{
 				level: process.env.LOG_LEVEL || 'info',
-				formatters: {
-					level(label) {
-						return { level: label };
-					},
-				},
 			},
 			process.env.NODE_ENV === 'production' ? undefined : pretty(),
 		),
@@ -34,7 +30,8 @@ openApiApp.onError(onError);
 
 openApiApp.on(['POST', 'GET'], '/auth/**', (c) => auth.handler(c.req.raw));
 
-openApiApp.route('/', itemHandler);
+openApiApp.route('/items', itemRouter);
+openApiApp.route('/categories', categoryRouter);
 
 openApiApp.doc('/docs', {
 	openapi: '3.0.0',

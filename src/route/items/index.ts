@@ -6,10 +6,11 @@ import { getItemHandler, itemRoute } from './get-item';
 import { itemsRoute, listItemHandler } from './list-item';
 import { updateItemHandler, updateItemRoute } from './update-item';
 
-export const itemHandler = new OpenAPIHono<AppBindings>().basePath('/items');
+export const itemRouter = new OpenAPIHono<AppBindings>();
 
-itemHandler.openapi(itemsRoute, listItemHandler);
-itemHandler.openapi(itemRoute, getItemHandler);
-itemHandler.openapi(createItemRoute, createItemHandler);
-itemHandler.openapi(updateItemRoute, updateItemHandler);
-itemHandler.openapi(deleteItemRoute, deleteItemHandler);
+itemRouter
+	.openapi(itemsRoute, listItemHandler)
+	.openapi(itemRoute, getItemHandler)
+	.openapi(createItemRoute, createItemHandler)
+	.openapi(updateItemRoute, updateItemHandler)
+	.openapi(deleteItemRoute, deleteItemHandler);
