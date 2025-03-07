@@ -1,8 +1,8 @@
 import { db } from '@/db';
-import { itemSchema, items } from '@/db/schema';
+import { category, items, selectItemSchema } from '@/db/schema';
 import type { AppRouteHandler } from '@/lib/type';
 import { createRoute, z } from '@hono/zod-openapi';
-import { and, count as countFn, eq, like } from 'drizzle-orm';
+import { and, count as countFn, eq, getTableColumns, like } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent } from 'stoker/openapi/helpers';
 
@@ -20,7 +20,7 @@ export const itemsRoute = createRoute({
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(
 			z.object({
-				items: z.array(itemSchema),
+				items: z.array(selectItemSchema),
 				pagination: z.object({
 					total: z.number(),
 					page: z.number(),
@@ -36,14 +36,14 @@ export const itemsRoute = createRoute({
 export const listItemHandler: AppRouteHandler<typeof itemsRoute> = async (
 	c,
 ) => {
-	const userId = c.var.user.id;
+	const user = c.var.user;
 	const { search, page, pageSize } = c.req.valid('query');
 
 	const pageNumber = Number.parseInt(page);
 	const limit = Number.parseInt(pageSize);
 	const offset = (pageNumber - 1) * limit;
 
-	const filters = [eq(items.userId, userId)];
+	const filters = [eq(items.userId, user.id)];
 
 	if (search) {
 		filters.push(like(items.name, `%${search}%`));
@@ -54,9 +54,15 @@ export const listItemHandler: AppRouteHandler<typeof itemsRoute> = async (
 		.from(items)
 		.where(and(...filters));
 
+	const { userId, categoryId, ...rest } = getTableColumns(items);
+
 	const results = await db
-		.select()
+		.select({
+			...rest,
+			category: category.name,
+		})
 		.from(items)
+		.leftJoin(category, eq(items.categoryId, category.id))
 		.where(and(...filters))
 		.limit(limit)
 		.offset(offset);

@@ -46,5 +46,5 @@ export const deleteItemHandler: AppRouteHandler<
 		);
 	}
 
-	return c.json({ message: 'Item deleted successfully', item: deletedItem });
+	return c.json({ message: HttpStatusPhrases.OK }, HttpStatusCodes.OK);
 };

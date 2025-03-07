@@ -47,7 +47,10 @@ export const items = sqliteTable(
 	],
 );
 
-export const itemSchema = createSelectSchema(items);
+export const selectItemSchema = createSelectSchema(items).omit({
+	userId: true,
+	categoryId: true,
+});
 export const updateItemSchema = createUpdateSchema(items);
 export const insertItemSchema = createInsertSchema(items).omit({
 	userId: true,
