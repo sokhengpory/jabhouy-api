@@ -1,5 +1,5 @@
-import type { AppBindings } from '@/lib/type';
 import { OpenAPIHono } from '@hono/zod-openapi';
+import type { AppBindings } from '~/lib/type';
 import { createItemHandler, createItemRoute } from './create-item';
 import { deleteItemHandler, deleteItemRoute } from './delete-item';
 import { getItemHandler, getItemRoute } from './get-item';

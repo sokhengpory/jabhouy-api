@@ -1,10 +1,10 @@
-import { db } from '@/db';
-import { category, selectCategorySchema } from '@/db/schema/category.schema';
-import type { AppRouteHandler } from '@/lib/type';
 import { createRoute, z } from '@hono/zod-openapi';
 import { eq } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent } from 'stoker/openapi/helpers';
+import { db } from '~/db';
+import { category, selectCategorySchema } from '~/db/schema/category.schema';
+import type { AppRouteHandler } from '~/lib/type';
 
 export const listCategoryRoute = createRoute({
 	method: 'get',

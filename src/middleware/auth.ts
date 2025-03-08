@@ -1,5 +1,5 @@
-import { auth } from '@/lib/auth';
 import type { MiddlewareHandler } from 'hono';
+import { auth } from '~/lib/auth';
 
 export const authMiddleware: MiddlewareHandler = async (c, next) => {
 	if (

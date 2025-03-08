@@ -1,13 +1,13 @@
-import { db } from '@/db';
-import { category } from '@/db/schema/category.schema';
-import { notFoundSchema } from '@/lib/constants';
-import type { AppRouteHandler } from '@/lib/type';
 import { createRoute } from '@hono/zod-openapi';
 import { and, eq } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent } from 'stoker/openapi/helpers';
 import { IdParamsSchema } from 'stoker/openapi/schemas';
+import { db } from '~/db';
+import { category } from '~/db/schema/category.schema';
+import { notFoundSchema } from '~/lib/constants';
+import type { AppRouteHandler } from '~/lib/type';
 
 export const deleteCategoryRoute = createRoute({
 	method: 'delete',

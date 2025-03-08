@@ -1,13 +1,13 @@
-import { db } from '@/db';
+import { createRoute } from '@hono/zod-openapi';
+import * as HttpStatusCodes from 'stoker/http-status-codes';
+import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
+import { db } from '~/db';
 import {
 	category,
 	insertCategorySchema,
 	selectCategorySchema,
-} from '@/db/schema/category.schema';
-import type { AppRouteHandler } from '@/lib/type';
-import { createRoute } from '@hono/zod-openapi';
-import * as HttpStatusCodes from 'stoker/http-status-codes';
-import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
+} from '~/db/schema/category.schema';
+import type { AppRouteHandler } from '~/lib/type';
 
 export const createCategoryRoute = createRoute({
 	method: 'post',

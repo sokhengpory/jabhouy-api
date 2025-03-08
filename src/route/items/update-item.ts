@@ -1,17 +1,17 @@
-import { db } from '@/db';
-import {
-	category,
-	item,
-	selectItemSchema,
-	updateItemSchema,
-} from '@/db/schema';
-import { notFoundSchema } from '@/lib/constants';
-import type { AppRouteHandler } from '@/lib/type';
 import { createRoute } from '@hono/zod-openapi';
 import { and, eq, getTableColumns } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
+import { db } from '~/db';
+import {
+	category,
+	item,
+	selectItemSchema,
+	updateItemSchema,
+} from '~/db/schema';
+import { notFoundSchema } from '~/lib/constants';
+import type { AppRouteHandler } from '~/lib/type';
 
 export const updateItemRoute = createRoute({
 	method: 'put',

@@ -1,13 +1,13 @@
-import { db } from '@/db';
-import { category, selectCategorySchema } from '@/db/schema/category.schema';
-import { notFoundSchema } from '@/lib/constants';
-import type { AppRouteHandler } from '@/lib/type';
 import { createRoute, z } from '@hono/zod-openapi';
 import { and, eq } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
 import { IdParamsSchema } from 'stoker/openapi/schemas';
+import { db } from '~/db';
+import { category, selectCategorySchema } from '~/db/schema/category.schema';
+import { notFoundSchema } from '~/lib/constants';
+import type { AppRouteHandler } from '~/lib/type';
 
 const updateCategorySchema = z.object({
 	name: z.string().min(1).optional(),
