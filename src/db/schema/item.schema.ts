@@ -14,8 +14,8 @@ import {
 import { user } from './auth.schema';
 import { category } from './category.schema';
 
-export const items = sqliteTable(
-	'items',
+export const item = sqliteTable(
+	'item',
 	{
 		id: integer('id').primaryKey({ autoIncrement: true }),
 		userId: text('user_id')
@@ -23,12 +23,8 @@ export const items = sqliteTable(
 			.references(() => user.id, { onDelete: 'cascade' }),
 		name: text('name').notNull(),
 		basePrice: real('base_price').notNull(),
-		defaultBatchPrice: real('default_batch_price'),
 		customerPrice: real('customer_price'),
 		sellerPrice: real('seller_price'),
-		customerBatchPrice: real('customer_batch_price'),
-		sellerBatchPrice: real('seller_batch_price'),
-		batchSize: integer('batch_size'),
 		note: text('note'),
 		imageUrl: text('image_url'),
 		categoryId: integer('category_id').references(() => category.id, {
@@ -37,9 +33,9 @@ export const items = sqliteTable(
 		createdAt: integer('created_at', { mode: 'timestamp' }).default(
 			sql`(unixepoch())`,
 		),
-		updatedAt: integer('updated_at', { mode: 'timestamp' }).$onUpdate(
-			() => new Date(),
-		),
+		updatedAt: integer('updated_at', { mode: 'timestamp' })
+			.default(sql`(unixepoch())`)
+			.$onUpdate(() => new Date()),
 	},
 	(table) => [
 		index('user_idx').on(table.userId),
@@ -47,14 +43,14 @@ export const items = sqliteTable(
 	],
 );
 
-export const selectItemSchema = createSelectSchema(items).omit({
+export const selectItemSchema = createSelectSchema(item).omit({
 	userId: true,
 	categoryId: true,
 });
-export const updateItemSchema = createUpdateSchema(items);
-export const insertItemSchema = createInsertSchema(items).omit({
+export const updateItemSchema = createUpdateSchema(item);
+export const insertItemSchema = createInsertSchema(item).omit({
 	userId: true,
 });
 
-export type Item = typeof items.$inferSelect;
-export type InsertItem = typeof items.$inferInsert;
+export type Item = typeof item.$inferSelect;
+export type InsertItem = typeof item.$inferInsert;

@@ -1,7 +1,10 @@
-import { items } from '@/db/schema';
-
 import { db } from '@/db';
-import { category, insertItemSchema, selectItemSchema } from '@/db/schema';
+import {
+	category,
+	insertItemSchema,
+	item,
+	selectItemSchema,
+} from '@/db/schema';
 import type { AppRouteHandler } from '@/lib/type';
 import { createRoute } from '@hono/zod-openapi';
 import { eq, getTableColumns } from 'drizzle-orm';
@@ -29,13 +32,13 @@ export const createItemHandler: AppRouteHandler<
 	const body = c.req.valid('json');
 	const user = c.var.user;
 
-	const { userId, categoryId, ...rest } = getTableColumns(items);
+	const { userId, categoryId, ...rest } = getTableColumns(item);
 
 	const [created] = await db
-		.insert(items)
+		.insert(item)
 		.values({ ...body, userId: user.id })
 		.returning({
-			id: items.id,
+			id: item.id,
 		});
 
 	const [result] = await db
@@ -43,9 +46,9 @@ export const createItemHandler: AppRouteHandler<
 			...rest,
 			category: category.name,
 		})
-		.from(items)
-		.leftJoin(category, eq(items.categoryId, category.id))
-		.where(eq(items.id, created.id));
+		.from(item)
+		.leftJoin(category, eq(item.categoryId, category.id))
+		.where(eq(item.id, created.id));
 
 	return c.json(result, HttpStatusCodes.CREATED);
 };

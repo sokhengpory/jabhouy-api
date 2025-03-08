@@ -1,7 +1,7 @@
 import { db } from '@/db';
 import {
 	category,
-	items,
+	item,
 	selectItemSchema,
 	updateItemSchema,
 } from '@/db/schema';
@@ -36,14 +36,14 @@ export const updateItemHandler: AppRouteHandler<
 	const user = c.var.user;
 	const body = c.req.valid('json');
 
-	const { userId, categoryId, ...rest } = getTableColumns(items);
+	const { userId, categoryId, ...rest } = getTableColumns(item);
 
 	const [updated] = await db
-		.update(items)
+		.update(item)
 		.set(body)
-		.where(and(eq(items.id, Number(id)), eq(items.userId, user.id)))
+		.where(and(eq(item.id, Number(id)), eq(item.userId, user.id)))
 		.returning({
-			id: items.id,
+			id: item.id,
 		});
 
 	if (!updated) {
@@ -58,9 +58,9 @@ export const updateItemHandler: AppRouteHandler<
 			...rest,
 			categoryName: category.name,
 		})
-		.from(items)
-		.leftJoin(category, eq(items.categoryId, category.id))
-		.where(eq(items.id, updated.id));
+		.from(item)
+		.leftJoin(category, eq(item.categoryId, category.id))
+		.where(eq(item.id, updated.id));
 
 	return c.json(result, HttpStatusCodes.OK);
 };

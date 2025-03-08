@@ -1,12 +1,12 @@
 import { db } from '@/db';
-import { category, items, selectItemSchema } from '@/db/schema';
+import { category, item, selectItemSchema } from '@/db/schema';
 import type { AppRouteHandler } from '@/lib/type';
 import { createRoute, z } from '@hono/zod-openapi';
 import { and, count as countFn, eq, getTableColumns, like } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent } from 'stoker/openapi/helpers';
 
-export const itemsRoute = createRoute({
+export const listItemRoute = createRoute({
 	method: 'get',
 	path: '/',
 	tags: ['Item'],
@@ -33,7 +33,7 @@ export const itemsRoute = createRoute({
 	},
 });
 
-export const listItemHandler: AppRouteHandler<typeof itemsRoute> = async (
+export const listItemHandler: AppRouteHandler<typeof listItemRoute> = async (
 	c,
 ) => {
 	const user = c.var.user;
@@ -43,26 +43,26 @@ export const listItemHandler: AppRouteHandler<typeof itemsRoute> = async (
 	const limit = Number.parseInt(pageSize);
 	const offset = (pageNumber - 1) * limit;
 
-	const filters = [eq(items.userId, user.id)];
+	const filters = [eq(item.userId, user.id)];
 
 	if (search) {
-		filters.push(like(items.name, `%${search}%`));
+		filters.push(like(item.name, `%${search}%`));
 	}
 
 	const [{ count }] = await db
 		.select({ count: countFn() })
-		.from(items)
+		.from(item)
 		.where(and(...filters));
 
-	const { userId, categoryId, ...rest } = getTableColumns(items);
+	const { userId, categoryId, ...rest } = getTableColumns(item);
 
 	const results = await db
 		.select({
 			...rest,
 			category: category.name,
 		})
-		.from(items)
-		.leftJoin(category, eq(items.categoryId, category.id))
+		.from(item)
+		.leftJoin(category, eq(item.categoryId, category.id))
 		.where(and(...filters))
 		.limit(limit)
 		.offset(offset);

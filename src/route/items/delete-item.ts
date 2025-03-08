@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { items } from '@/db/schema';
+import { item } from '@/db/schema';
 import { notFoundSchema } from '@/lib/constants';
 import type { AppRouteHandler } from '@/lib/type';
 import { createRoute, z } from '@hono/zod-openapi';
@@ -35,8 +35,8 @@ export const deleteItemHandler: AppRouteHandler<
 	const itemId = Number(id);
 
 	const [deletedItem] = await db
-		.delete(items)
-		.where(and(eq(items.id, itemId), eq(items.userId, userId)))
+		.delete(item)
+		.where(and(eq(item.id, itemId), eq(item.userId, userId)))
 		.returning();
 
 	if (!deletedItem) {
