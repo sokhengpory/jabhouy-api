@@ -3,7 +3,7 @@ import { and, count as countFn, eq, getTableColumns, like } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent } from 'stoker/openapi/helpers';
 import { db } from '~/db';
-import { category, item, selectItemSchema } from '~/db/schema';
+import { category as categoryTable, item, selectItemSchema } from '~/db/schema';
 import type { AppRouteHandler } from '~/lib/type';
 
 export const listItemRoute = createRoute({
@@ -13,8 +13,9 @@ export const listItemRoute = createRoute({
 	request: {
 		query: z.object({
 			search: z.string().optional(),
-			page: z.string().optional().default('1'),
-			pageSize: z.string().optional().default('25'),
+			page: z.coerce.number().optional().default(1),
+			pageSize: z.coerce.number().optional().default(25),
+			category: z.coerce.number().optional(),
 		}),
 	},
 	responses: {
@@ -37,16 +38,18 @@ export const listItemHandler: AppRouteHandler<typeof listItemRoute> = async (
 	c,
 ) => {
 	const user = c.var.user;
-	const { search, page, pageSize } = c.req.valid('query');
+	const { search, page, pageSize, category } = c.req.valid('query');
 
-	const pageNumber = Number.parseInt(page);
-	const limit = Number.parseInt(pageSize);
-	const offset = (pageNumber - 1) * limit;
+	const offset = (page - 1) * pageSize;
 
 	const filters = [eq(item.userId, user.id)];
 
 	if (search) {
 		filters.push(like(item.name, `%${search}%`));
+	}
+
+	if (category) {
+		filters.push(eq(item.categoryId, category));
 	}
 
 	const [{ count }] = await db
@@ -59,12 +62,15 @@ export const listItemHandler: AppRouteHandler<typeof listItemRoute> = async (
 	const results = await db
 		.select({
 			...rest,
-			category: category.name,
+			category: {
+				id: categoryTable.id,
+				name: categoryTable.name,
+			},
 		})
 		.from(item)
-		.leftJoin(category, eq(item.categoryId, category.id))
+		.leftJoin(categoryTable, eq(item.categoryId, categoryTable.id))
 		.where(and(...filters))
-		.limit(limit)
+		.limit(pageSize)
 		.offset(offset);
 
 	return c.json(
@@ -72,9 +78,9 @@ export const listItemHandler: AppRouteHandler<typeof listItemRoute> = async (
 			items: results,
 			pagination: {
 				total: count,
-				page: pageNumber,
-				pageSize: limit,
-				totalPages: Math.ceil(count / limit),
+				page: page,
+				pageSize: pageSize,
+				totalPages: Math.ceil(count / pageSize),
 			},
 		},
 		HttpStatusCodes.OK,

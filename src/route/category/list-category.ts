@@ -24,7 +24,10 @@ export const listCategoryHandler: AppRouteHandler<
 	const userId = c.var.user.id;
 
 	const results = await db
-		.select()
+		.select({
+			id: category.id,
+			name: category.name,
+		})
 		.from(category)
 		.where(eq(category.userId, userId));
 

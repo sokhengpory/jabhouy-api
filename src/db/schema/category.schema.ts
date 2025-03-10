@@ -13,7 +13,10 @@ export const category = sqliteTable('category', {
 export const insertCategorySchema = createInsertSchema(category).omit({
 	userId: true,
 });
-export const selectCategorySchema = createSelectSchema(category);
+
+export const selectCategorySchema = createSelectSchema(category).omit({
+	userId: true,
+});
 
 export type Category = typeof category.$inferSelect;
 export type InsertCategory = typeof category.$inferInsert;
