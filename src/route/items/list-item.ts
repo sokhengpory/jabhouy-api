@@ -1,5 +1,12 @@
 import { createRoute, z } from '@hono/zod-openapi';
-import { and, count as countFn, eq, getTableColumns, like } from 'drizzle-orm';
+import {
+	and,
+	count as countFn,
+	desc,
+	eq,
+	getTableColumns,
+	like,
+} from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent } from 'stoker/openapi/helpers';
 import { db } from '~/db';
@@ -71,7 +78,8 @@ export const listItemHandler: AppRouteHandler<typeof listItemRoute> = async (
 		.leftJoin(categoryTable, eq(item.categoryId, categoryTable.id))
 		.where(and(...filters))
 		.limit(pageSize)
-		.offset(offset);
+		.offset(offset)
+		.orderBy(desc(item.createdAt));
 
 	return c.json(
 		{
