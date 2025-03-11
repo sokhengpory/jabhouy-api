@@ -19,6 +19,7 @@
 		"@libsql/kysely-libsql": "^0.4.1",
 		"@scalar/hono-api-reference": "^0.5.178",
 		"better-auth": "^1.1.14",
+		"cloudinary": "^2.6.0",
 		"drizzle-orm": "^0.38.4",
 		"drizzle-zod": "^0.7.0",
 		"hono": "^4.6.18",
