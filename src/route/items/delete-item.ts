@@ -15,13 +15,13 @@ export const deleteItemRoute = createRoute({
 	tags: ['Item'],
 	request: {
 		params: z.object({
-			id: z.string(),
+			id: z.coerce.number(),
 		}),
 	},
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(
 			createMessageObjectSchema(HttpStatusPhrases.OK),
-			'Delete item',
+			'Delete item response',
 		),
 		[HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, 'Item not found'),
 	},
@@ -30,13 +30,12 @@ export const deleteItemRoute = createRoute({
 export const deleteItemHandler: AppRouteHandler<
 	typeof deleteItemRoute
 > = async (c) => {
-	const { id } = c.req.param();
+	const { id } = c.req.valid('param');
 	const userId = c.var.user.id;
-	const itemId = Number(id);
 
 	const [deletedItem] = await db
 		.delete(item)
-		.where(and(eq(item.id, itemId), eq(item.userId, userId)))
+		.where(and(eq(item.id, id), eq(item.userId, userId)))
 		.returning();
 
 	if (!deletedItem) {
