@@ -10,6 +10,7 @@ import type { AppBindings } from './lib/type';
 import { authMiddleware } from './middleware/auth';
 import { categoryRouter } from './route/category';
 import { itemRouter } from './route/items';
+import { loanRouter } from './route/loan';
 import { uploadRouter } from './route/upload';
 
 const openApiApp = new OpenAPIHono<AppBindings>();
@@ -33,6 +34,7 @@ openApiApp.on(['POST', 'GET'], '/auth/**', (c) => auth.handler(c.req.raw));
 
 openApiApp.route('/items', itemRouter);
 openApiApp.route('/categories', categoryRouter);
+openApiApp.route('/loans', loanRouter);
 openApiApp.route('/upload', uploadRouter);
 
 openApiApp.doc('/docs', {
