@@ -1,4 +1,4 @@
-import { createRoute } from '@hono/zod-openapi';
+import { createRoute, z } from '@hono/zod-openapi';
 import { and, eq, getTableColumns } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
@@ -18,6 +18,9 @@ export const updateItemRoute = createRoute({
 	path: '/{id}',
 	tags: ['Item'],
 	request: {
+		params: z.object({
+			id: z.coerce.number(),
+		}),
 		body: jsonContentRequired(updateItemSchema, 'Update item'),
 	},
 	responses: {
@@ -32,7 +35,7 @@ export const updateItemRoute = createRoute({
 export const updateItemHandler: AppRouteHandler<
 	typeof updateItemRoute
 > = async (c) => {
-	const { id } = c.req.param();
+	const { id } = c.req.valid('param');
 	const user = c.var.user;
 	const body = c.req.valid('json');
 
@@ -41,7 +44,7 @@ export const updateItemHandler: AppRouteHandler<
 	const [updated] = await db
 		.update(item)
 		.set(body)
-		.where(and(eq(item.id, Number(id)), eq(item.userId, user.id)))
+		.where(and(eq(item.id, id), eq(item.userId, user.id)))
 		.returning({
 			id: item.id,
 		});
@@ -56,7 +59,10 @@ export const updateItemHandler: AppRouteHandler<
 	const [result] = await db
 		.select({
 			...rest,
-			categoryName: category.name,
+			category: {
+				id: category.id,
+				name: category.name,
+			},
 		})
 		.from(item)
 		.leftJoin(category, eq(item.categoryId, category.id))

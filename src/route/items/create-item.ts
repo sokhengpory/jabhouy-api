@@ -44,7 +44,10 @@ export const createItemHandler: AppRouteHandler<
 	const [result] = await db
 		.select({
 			...rest,
-			category: category.name,
+			category: {
+				id: category.id,
+				name: category.name,
+			},
 		})
 		.from(item)
 		.leftJoin(category, eq(item.categoryId, category.id))

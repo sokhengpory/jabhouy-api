@@ -14,7 +14,7 @@ export const getItemRoute = createRoute({
 	tags: ['Item'],
 	request: {
 		params: z.object({
-			id: z.string(),
+			id: z.coerce.number(),
 		}),
 	},
 	responses: {
@@ -26,7 +26,7 @@ export const getItemRoute = createRoute({
 export const getItemHandler: AppRouteHandler<typeof getItemRoute> = async (
 	c,
 ) => {
-	const { id } = c.req.param();
+	const { id } = c.req.valid('param');
 	const user = c.var.user;
 
 	const { userId, categoryId, ...rest } = getTableColumns(item);
@@ -34,11 +34,14 @@ export const getItemHandler: AppRouteHandler<typeof getItemRoute> = async (
 	const [result] = await db
 		.select({
 			...rest,
-			category: category.name,
+			category: {
+				id: category.id,
+				name: category.name,
+			},
 		})
 		.from(item)
 		.leftJoin(category, eq(item.categoryId, category.id))
-		.where(and(eq(item.id, Number(id)), eq(item.userId, user.id)));
+		.where(and(eq(item.id, id), eq(item.userId, user.id)));
 
 	if (!result) {
 		return c.json(
