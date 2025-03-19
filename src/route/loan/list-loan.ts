@@ -1,6 +1,14 @@
 import { createRoute } from '@hono/zod-openapi';
 import { z } from '@hono/zod-openapi';
-import { and, eq, getTableColumns, like, or } from 'drizzle-orm';
+import {
+	and,
+	asc,
+	count as countFn,
+	desc,
+	eq,
+	getTableColumns,
+	like,
+} from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent } from 'stoker/openapi/helpers';
 import { db } from '~/db';
@@ -14,12 +22,27 @@ export const listLoanRoute = createRoute({
 	request: {
 		query: z.object({
 			name: z.string().optional(),
+			page: z.coerce.number().optional().default(1),
+			limit: z.coerce.number().optional().default(25),
+			sort: z.enum(['asc', 'desc']).optional().default('desc'),
+			sortBy: z
+				.enum(['createdAt', 'name', 'amount'])
+				.optional()
+				.default('createdAt'),
 		}),
 	},
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(
-			z.array(selectLoanSchema),
-			'List of loans',
+			z.object({
+				loans: z.array(selectLoanSchema),
+				pagination: z.object({
+					total: z.number(),
+					page: z.number(),
+					limit: z.number(),
+					totalPages: z.number(),
+				}),
+			}),
+			'List of loans with pagination',
 		),
 	},
 });
@@ -27,7 +50,7 @@ export const listLoanRoute = createRoute({
 export const listLoanHandler: AppRouteHandler<typeof listLoanRoute> = async (
 	c,
 ) => {
-	const { name } = c.req.valid('query');
+	const { name, page, limit, sort, sortBy } = c.req.valid('query');
 	const user = c.var.user;
 
 	const { userId, ...rest } = getTableColumns(loan);
@@ -38,13 +61,30 @@ export const listLoanHandler: AppRouteHandler<typeof listLoanRoute> = async (
 		filters.push(like(loan.name, `%${name}%`));
 	}
 
+	const offset = (page - 1) * limit;
+
+	const [{ count }] = await db
+		.select({ count: countFn() })
+		.from(loan)
+		.where(and(...filters));
+
 	const results = await db
 		.select({
 			...rest,
 		})
 		.from(loan)
 		.where(and(...filters))
-		.orderBy(loan.createdAt);
+		.orderBy(sort === 'asc' ? asc(loan[sortBy]) : desc(loan[sortBy]))
+		.limit(limit)
+		.offset(offset);
 
-	return c.json(results);
+	return c.json({
+		loans: results,
+		pagination: {
+			total: count,
+			page,
+			limit,
+			totalPages: Math.ceil(count / limit),
+		},
+	});
 };

@@ -21,7 +21,7 @@ export const listItemRoute = createRoute({
 		query: z.object({
 			search: z.string().optional(),
 			page: z.coerce.number().optional().default(1),
-			pageSize: z.coerce.number().optional().default(25),
+			limit: z.coerce.number().optional().default(25),
 			category: z.coerce.number().optional(),
 		}),
 	},
@@ -32,7 +32,7 @@ export const listItemRoute = createRoute({
 				pagination: z.object({
 					total: z.number(),
 					page: z.number(),
-					pageSize: z.number(),
+					limit: z.number(),
 					totalPages: z.number(),
 				}),
 			}),
@@ -45,9 +45,9 @@ export const listItemHandler: AppRouteHandler<typeof listItemRoute> = async (
 	c,
 ) => {
 	const user = c.var.user;
-	const { search, page, pageSize, category } = c.req.valid('query');
+	const { search, page, limit, category } = c.req.valid('query');
 
-	const offset = (page - 1) * pageSize;
+	const offset = (page - 1) * limit;
 
 	const filters = [eq(item.userId, user.id)];
 
@@ -77,7 +77,7 @@ export const listItemHandler: AppRouteHandler<typeof listItemRoute> = async (
 		.from(item)
 		.leftJoin(categoryTable, eq(item.categoryId, categoryTable.id))
 		.where(and(...filters))
-		.limit(pageSize)
+		.limit(limit)
 		.offset(offset)
 		.orderBy(desc(item.createdAt));
 
@@ -87,8 +87,8 @@ export const listItemHandler: AppRouteHandler<typeof listItemRoute> = async (
 			pagination: {
 				total: count,
 				page: page,
-				pageSize: pageSize,
-				totalPages: Math.ceil(count / pageSize),
+				limit: limit,
+				totalPages: Math.ceil(count / limit),
 			},
 		},
 		HttpStatusCodes.OK,
