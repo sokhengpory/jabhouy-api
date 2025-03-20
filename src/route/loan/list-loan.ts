@@ -34,7 +34,7 @@ export const listLoanRoute = createRoute({
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(
 			z.object({
-				loans: z.array(selectLoanSchema),
+				data: z.array(selectLoanSchema),
 				pagination: z.object({
 					total: z.number(),
 					page: z.number(),
@@ -79,7 +79,7 @@ export const listLoanHandler: AppRouteHandler<typeof listLoanRoute> = async (
 		.offset(offset);
 
 	return c.json({
-		loans: results,
+		data: results,
 		pagination: {
 			total: count,
 			page,

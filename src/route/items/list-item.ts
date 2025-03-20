@@ -28,7 +28,7 @@ export const listItemRoute = createRoute({
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(
 			z.object({
-				items: z.array(selectItemSchema),
+				data: z.array(selectItemSchema),
 				pagination: z.object({
 					total: z.number(),
 					page: z.number(),
@@ -83,7 +83,7 @@ export const listItemHandler: AppRouteHandler<typeof listItemRoute> = async (
 
 	return c.json(
 		{
-			items: results,
+			data: results,
 			pagination: {
 				total: count,
 				page: page,
