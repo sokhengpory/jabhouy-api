@@ -7,7 +7,6 @@ import {
 	desc,
 	eq,
 	getTableColumns,
-	like,
 } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent } from 'stoker/openapi/helpers';
