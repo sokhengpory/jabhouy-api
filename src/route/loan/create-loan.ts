@@ -1,9 +1,11 @@
 import { createRoute } from '@hono/zod-openapi';
-import { eq, getTableColumns } from 'drizzle-orm';
+import { and, eq, getTableColumns } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
+import { createMessageObjectSchema } from 'stoker/openapi/schemas';
 import { db } from '~/db';
 import { insertLoanSchema, loan, selectLoanSchema } from '~/db/schema';
+import { customer } from '~/db/schema/customer.schema';
 import type { AppRouteHandler } from '~/lib/type';
 
 export const createLoanRoute = createRoute({
@@ -18,6 +20,10 @@ export const createLoanRoute = createRoute({
 			selectLoanSchema,
 			'Created loan response',
 		),
+		[HttpStatusCodes.NOT_FOUND]: jsonContent(
+			createMessageObjectSchema('Customer not found'),
+			'Customer not found',
+		),
 	},
 });
 
@@ -27,20 +33,33 @@ export const createLoanHandler: AppRouteHandler<
 	const body = c.req.valid('json');
 	const user = c.var.user;
 
-	const { userId, ...rest } = getTableColumns(loan);
+	const customerExists = await db
+		.select({ id: customer.id })
+		.from(customer)
+		.where(and(eq(customer.id, body.customerId), eq(customer.userId, user.id)))
+		.limit(1);
+
+	if (customerExists.length === 0) {
+		return c.json({ message: 'Customer not found' }, HttpStatusCodes.NOT_FOUND);
+	}
+
+	const { userId, customerId, ...rest } = getTableColumns(loan);
 
 	const [created] = await db
 		.insert(loan)
 		.values({ ...body, userId: user.id })
-		.returning({
-			id: loan.id,
-		});
+		.returning(rest);
 
 	const [result] = await db
 		.select({
 			...rest,
+			customer: {
+				id: customer.id,
+				name: customer.name,
+			},
 		})
 		.from(loan)
+		.leftJoin(customer, eq(customer.id, loan.customerId))
 		.where(eq(loan.id, created.id));
 
 	return c.json(result, HttpStatusCodes.CREATED);

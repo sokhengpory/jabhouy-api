@@ -38,6 +38,7 @@ export const loan = sqliteTable(
 
 export const selectLoanSchema = createSelectSchema(loan).omit({
 	userId: true,
+	customerId: true,
 });
 
 export const updateLoanSchema = createUpdateSchema(loan).omit({
