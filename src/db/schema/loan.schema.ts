@@ -12,6 +12,7 @@ import {
 	createUpdateSchema,
 } from 'drizzle-zod';
 import { user } from './auth.schema';
+import { customer } from './customer.schema';
 
 export const loan = sqliteTable(
 	'loan',
@@ -20,7 +21,9 @@ export const loan = sqliteTable(
 		userId: text('user_id')
 			.notNull()
 			.references(() => user.id, { onDelete: 'cascade' }),
-		name: text('name').notNull(),
+		customerId: integer('customer_id')
+			.notNull()
+			.references(() => customer.id, { onDelete: 'cascade' }),
 		amount: real('amount').notNull(),
 		note: text('note'),
 		createdAt: integer('created_at', { mode: 'timestamp' }).default(

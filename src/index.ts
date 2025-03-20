@@ -2,7 +2,7 @@ import { serve } from '@hono/node-server';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { apiReference } from '@scalar/hono-api-reference';
 import { pinoLogger } from 'hono-pino';
-import { cors } from "hono/cors";
+import { cors } from 'hono/cors';
 import pino from 'pino';
 import pretty from 'pino-pretty';
 import { notFound, onError } from 'stoker/middlewares';
@@ -10,6 +10,7 @@ import { auth } from './lib/auth';
 import type { AppBindings } from './lib/type';
 import { authMiddleware } from './middleware/auth';
 import { categoryRouter } from './route/category';
+import { customerRouter } from './route/customer';
 import { itemRouter } from './route/items';
 import { loanRouter } from './route/loan';
 import { uploadRouter } from './route/upload';
@@ -17,12 +18,12 @@ import { uploadRouter } from './route/upload';
 const openApiApp = new OpenAPIHono<AppBindings>();
 
 openApiApp.use(
-	"/auth/*",
+	'/auth/*',
 	cors({
-		origin: "*",
-		allowHeaders: ["Content-Type", "Authorization"],
-		allowMethods: ["POST", "GET", "OPTIONS"],
-		exposeHeaders: ["Content-Length"],
+		origin: '*',
+		allowHeaders: ['Content-Type', 'Authorization'],
+		allowMethods: ['POST', 'GET', 'OPTIONS'],
+		exposeHeaders: ['Content-Length'],
 		maxAge: 600,
 		credentials: true,
 	}),
@@ -47,6 +48,7 @@ openApiApp.on(['POST', 'GET'], '/auth/**', (c) => auth.handler(c.req.raw));
 
 openApiApp.route('/items', itemRouter);
 openApiApp.route('/categories', categoryRouter);
+openApiApp.route('/customers', customerRouter);
 openApiApp.route('/loans', loanRouter);
 openApiApp.route('/upload', uploadRouter);
 
