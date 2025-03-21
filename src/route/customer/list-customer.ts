@@ -23,7 +23,7 @@ export const listCustomerRoute = createRoute({
 		query: z.object({
 			name: z.string().optional(),
 			page: z.coerce.number().optional().default(1),
-			limit: z.coerce.number().optional().default(25),
+			limit: z.coerce.number().optional(),
 			sort: z.enum(['asc', 'desc']).optional().default('desc'),
 			sortBy: z.enum(['createdAt', 'name']).optional().default('createdAt'),
 		}),
@@ -58,12 +58,14 @@ export const listCustomerHandler: AppRouteHandler<
 		filters.push(like(customer.name, `%${name}%`));
 	}
 
-	const offset = (page - 1) * limit;
-
 	const [{ count }] = await db
 		.select({ count: countFn() })
 		.from(customer)
 		.where(and(...filters));
+
+	const _limit = limit || count;
+
+	const offset = (page - 1) * _limit;
 
 	const results = await db
 		.select({
@@ -72,7 +74,7 @@ export const listCustomerHandler: AppRouteHandler<
 		.from(customer)
 		.where(and(...filters))
 		.orderBy(sort === 'asc' ? asc(customer[sortBy]) : desc(customer[sortBy]))
-		.limit(limit)
+		.limit(_limit)
 		.offset(offset);
 
 	return c.json({
@@ -80,8 +82,8 @@ export const listCustomerHandler: AppRouteHandler<
 		pagination: {
 			total: count,
 			page,
-			limit,
-			totalPages: Math.ceil(count / limit),
+			limit: _limit,
+			totalPages: Math.ceil(count / _limit),
 		},
 	});
 };
