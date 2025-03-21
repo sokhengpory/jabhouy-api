@@ -4,7 +4,12 @@ import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
 import { db } from '~/db';
-import { loan, selectLoanSchema, updateLoanSchema } from '~/db/schema';
+import {
+	customer,
+	loan,
+	selectLoanSchema,
+	updateLoanSchema,
+} from '~/db/schema';
 import { idParamSchema, notFoundSchema } from '~/lib/constants';
 import type { AppRouteHandler } from '~/lib/type';
 
@@ -43,11 +48,22 @@ export const updateLoanHandler: AppRouteHandler<
 
 	const { userId, ...rest } = getTableColumns(loan);
 
-	const [result] = await db
+	await db
 		.update(loan)
 		.set(body)
-		.where(and(eq(loan.id, id), eq(loan.userId, user.id)))
-		.returning({ ...rest });
+		.where(and(eq(loan.id, id), eq(loan.userId, user.id)));
+
+	const [result] = await db
+		.select({
+			...rest,
+			customer: {
+				id: customer.id,
+				name: customer.name,
+			},
+		})
+		.from(loan)
+		.leftJoin(customer, eq(customer.id, loan.customerId))
+		.where(and(eq(loan.id, id), eq(loan.userId, user.id)));
 
 	return c.json(result, HttpStatusCodes.OK);
 };
