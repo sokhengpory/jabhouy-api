@@ -50,6 +50,23 @@ CREATE TABLE `verification` (
 	`updated_at` integer
 );
 --> statement-breakpoint
+CREATE TABLE `category` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`name` text NOT NULL,
+	`user_id` text NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `customer` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`user_id` text NOT NULL,
+	`name` text NOT NULL,
+	`created_at` integer DEFAULT (unixepoch()),
+	`updated_at` integer DEFAULT (unixepoch()),
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE INDEX `customer_user_idx` ON `customer` (`user_id`);--> statement-breakpoint
 CREATE TABLE `item` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`user_id` text NOT NULL,
@@ -68,13 +85,6 @@ CREATE TABLE `item` (
 --> statement-breakpoint
 CREATE INDEX `user_idx` ON `item` (`user_id`);--> statement-breakpoint
 CREATE INDEX `category_idx` ON `item` (`category_id`);--> statement-breakpoint
-CREATE TABLE `category` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`name` text NOT NULL,
-	`user_id` text NOT NULL,
-	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
-);
---> statement-breakpoint
 CREATE TABLE `loan` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`user_id` text NOT NULL,
@@ -87,14 +97,4 @@ CREATE TABLE `loan` (
 	FOREIGN KEY (`customer_id`) REFERENCES `customer`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE INDEX `loan_user_idx` ON `loan` (`user_id`);--> statement-breakpoint
-CREATE TABLE `customer` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`user_id` text NOT NULL,
-	`name` text NOT NULL,
-	`created_at` integer DEFAULT (unixepoch()),
-	`updated_at` integer DEFAULT (unixepoch()),
-	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
-);
---> statement-breakpoint
-CREATE INDEX `customer_user_idx` ON `customer` (`user_id`);
+CREATE INDEX `loan_user_idx` ON `loan` (`user_id`);
