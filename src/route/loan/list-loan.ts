@@ -1,5 +1,6 @@
 import { createRoute } from '@hono/zod-openapi';
 import { z } from '@hono/zod-openapi';
+import { endOfDay, startOfDay } from 'date-fns';
 import {
 	and,
 	asc,
@@ -7,6 +8,8 @@ import {
 	desc,
 	eq,
 	getTableColumns,
+	gte,
+	lte,
 } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent } from 'stoker/openapi/helpers';
@@ -25,6 +28,8 @@ export const listLoanRoute = createRoute({
 			limit: z.coerce.number().optional().default(25),
 			sort: z.enum(['asc', 'desc']).optional().default('desc'),
 			sortBy: z.enum(['createdAt', 'amount']).optional().default('createdAt'),
+			from: z.string().date().optional(),
+			to: z.string().date().optional(),
 		}),
 	},
 	responses: {
@@ -52,12 +57,26 @@ export const listLoanHandler: AppRouteHandler<typeof listLoanRoute> = async (
 		limit,
 		sort,
 		sortBy,
+		from,
+		to,
 	} = c.req.valid('query');
+
 	const user = c.var.user;
 
 	const { userId, customerId: loanCustomerId, ...rest } = getTableColumns(loan);
 
 	const filters = [eq(loan.userId, user.id)];
+
+	if (from && to) {
+		filters.push(
+			gte(loan.createdAt, startOfDay(new Date(from))),
+			lte(loan.createdAt, endOfDay(new Date(to))),
+		);
+	} else if (from) {
+		filters.push(gte(loan.createdAt, startOfDay(new Date(from))));
+	} else if (to) {
+		filters.push(lte(loan.createdAt, endOfDay(new Date(to))));
+	}
 
 	if (customerId) {
 		filters.push(eq(loanCustomerId, customerId));
