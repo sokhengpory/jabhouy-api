@@ -11,7 +11,12 @@ export const auth = betterAuth({
 	}),
 	secret: process.env.BETTER_AUTH_SECRET,
 	basePath: '/auth',
-	plugins: [username(), openAPI()],
+	plugins: [
+		username(),
+		openAPI({
+			disableDefaultReference: process.env.NODE_ENV === 'production',
+		}),
+	],
 	emailAndPassword: {
 		enabled: true,
 		minPasswordLength: 4,

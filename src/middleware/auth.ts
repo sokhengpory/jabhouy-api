@@ -2,11 +2,7 @@ import type { MiddlewareHandler } from 'hono';
 import { auth } from '~/lib/auth';
 
 export const authMiddleware: MiddlewareHandler = async (c, next) => {
-	if (
-		c.req.path.startsWith('/auth') ||
-		c.req.path === '/reference' ||
-		c.req.path === '/docs'
-	) {
+	if (c.req.path.startsWith('/auth')) {
 		return next();
 	}
 
