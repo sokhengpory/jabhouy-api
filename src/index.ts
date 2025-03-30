@@ -14,6 +14,7 @@ import { customerRouter } from './route/customer';
 import { itemRouter } from './route/items';
 import { loanRouter } from './route/loan';
 import { uploadRouter } from './route/upload';
+import { privacyRouter } from './route/privacy';
 
 const openApiApp = new OpenAPIHono<AppBindings>();
 
@@ -51,6 +52,7 @@ openApiApp.route('/categories', categoryRouter);
 openApiApp.route('/customers', customerRouter);
 openApiApp.route('/loans', loanRouter);
 openApiApp.route('/upload', uploadRouter);
+openApiApp.route('/privacy', privacyRouter);
 
 openApiApp.doc('/docs', {
 	openapi: '3.0.0',
