@@ -71,9 +71,7 @@ openApiApp.get(
 			targetKey: 'js',
 			clientKey: 'fetch',
 		},
-		spec: {
-			url: '/docs',
-		},
+		url: '/docs',
 	}),
 );
 
