@@ -1,4 +1,4 @@
-import { createRoute } from '@hono/zod-openapi';
+import { createRoute, z } from '@hono/zod-openapi';
 import { and, eq, getTableColumns } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
@@ -13,7 +13,12 @@ export const createLoanRoute = createRoute({
 	path: '/',
 	tags: ['Loan'],
 	request: {
-		body: jsonContentRequired(insertLoanSchema, 'Create loan'),
+		body: jsonContentRequired(
+			insertLoanSchema.extend({
+				createdAt: z.string().date().nullish().describe('YYYY-MM-DD'),
+			}),
+			'Create loan',
+		),
 	},
 	responses: {
 		[HttpStatusCodes.CREATED]: jsonContent(
@@ -47,7 +52,11 @@ export const createLoanHandler: AppRouteHandler<
 
 	const [created] = await db
 		.insert(loan)
-		.values({ ...body, userId: user.id })
+		.values({
+			...body,
+			createdAt: body.createdAt ? new Date(body.createdAt) : new Date(),
+			userId: user.id,
+		})
 		.returning(rest);
 
 	const [result] = await db

@@ -21,11 +21,11 @@ export const auth = betterAuth({
 		enabled: true,
 		minPasswordLength: 4,
 	},
-	advanced: {
-		defaultCookieAttributes: {
-			sameSite: 'none',
-			secure: true,
-			partitioned: true,
-		},
-	},
+	// advanced: {
+	// 	defaultCookieAttributes: {
+	// 		sameSite: 'none',
+	// 		secure: true,
+	// 		partitioned: true,
+	// 	},
+	// },
 });
