@@ -55,6 +55,7 @@ export const createLoanHandler: AppRouteHandler<
 		.values({
 			...body,
 			createdAt: body.createdAt ? new Date(body.createdAt) : new Date(),
+			updatedAt: body.createdAt ? new Date(body.createdAt) : new Date(),
 			userId: user.id,
 		})
 		.returning(rest);
