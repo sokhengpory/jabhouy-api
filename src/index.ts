@@ -13,8 +13,8 @@ import { categoryRouter } from './route/category';
 import { customerRouter } from './route/customer';
 import { itemRouter } from './route/items';
 import { loanRouter } from './route/loan';
-import { uploadRouter } from './route/upload';
 import { privacyRouter } from './route/privacy';
+import { uploadRouter } from './route/upload';
 
 const openApiApp = new OpenAPIHono<AppBindings>();
 
