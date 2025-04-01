@@ -35,7 +35,7 @@ export const updateLoanHandler: AppRouteHandler<
 	const user = c.var.user;
 
 	const [existingLoan] = await db
-		.select({ id: loan.id })
+		.select()
 		.from(loan)
 		.where(and(eq(loan.id, id), eq(loan.userId, user.id)));
 
@@ -50,7 +50,12 @@ export const updateLoanHandler: AppRouteHandler<
 
 	await db
 		.update(loan)
-		.set(body)
+		.set({
+			...body,
+			createdAt: body.createdAt
+				? new Date(body.createdAt)
+				: existingLoan.createdAt,
+		})
 		.where(and(eq(loan.id, id), eq(loan.userId, user.id)));
 
 	const [result] = await db

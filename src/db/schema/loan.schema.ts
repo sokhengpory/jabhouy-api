@@ -1,3 +1,4 @@
+import { z } from '@hono/zod-openapi';
 import { sql } from 'drizzle-orm';
 import {
 	index,
@@ -41,12 +42,14 @@ export const selectLoanSchema = createSelectSchema(loan).omit({
 	customerId: true,
 });
 
-export const updateLoanSchema = createUpdateSchema(loan).omit({
-	id: true,
-	userId: true,
-	createdAt: true,
-	updatedAt: true,
-});
+export const updateLoanSchema = createUpdateSchema(loan)
+	.omit({
+		id: true,
+		userId: true,
+		createdAt: true,
+		updatedAt: true,
+	})
+	.extend({ createdAt: z.string().date().optional() });
 
 export const insertLoanSchema = createInsertSchema(loan).omit({
 	userId: true,
