@@ -15,6 +15,13 @@
       "when": 1743482358138,
       "tag": "0001_daffy_owl",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1743739737376,
+      "tag": "0002_gigantic_scream",
+      "breakpoints": true
     }
   ]
 }
