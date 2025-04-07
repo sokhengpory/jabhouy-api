@@ -33,6 +33,7 @@ export const loan = sqliteTable(
 		updatedAt: integer('updated_at', { mode: 'timestamp' })
 			.default(sql`(unixepoch())`)
 			.$onUpdate(() => new Date()),
+		paid: integer('paid', { mode: 'boolean' }).default(false),
 	},
 	(table) => [index('loan_user_idx').on(table.userId)],
 );

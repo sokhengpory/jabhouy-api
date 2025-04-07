@@ -24,12 +24,16 @@ export const listLoanRoute = createRoute({
 	request: {
 		query: z.object({
 			customer: z.coerce.number().optional(),
-			page: z.coerce.number().optional().default(1),
-			limit: z.coerce.number().optional().default(25),
-			sort: z.enum(['asc', 'desc']).optional().default('desc'),
-			sortBy: z.enum(['createdAt', 'amount']).optional().default('createdAt'),
+			page: z.coerce.number().default(1),
+			limit: z.coerce.number().default(25),
+			sort: z.enum(['asc', 'desc']).default('desc'),
+			sortBy: z.enum(['createdAt', 'amount']).default('createdAt'),
 			from: z.string().date().optional(),
 			to: z.string().date().optional(),
+			paid: z
+				.enum(['true', 'false'])
+				.transform((value) => value === 'true')
+				.default('false'),
 		}),
 	},
 	responses: {
@@ -59,6 +63,7 @@ export const listLoanHandler: AppRouteHandler<typeof listLoanRoute> = async (
 		sortBy,
 		from,
 		to,
+		paid,
 	} = c.req.valid('query');
 
 	const user = c.var.user;
@@ -80,6 +85,10 @@ export const listLoanHandler: AppRouteHandler<typeof listLoanRoute> = async (
 
 	if (customerId) {
 		filters.push(eq(loanCustomerId, customerId));
+	}
+
+	if (paid) {
+		filters.push(eq(loan.paid, paid));
 	}
 
 	const offset = (page - 1) * limit;

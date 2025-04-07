@@ -2,7 +2,6 @@ import { serve } from '@hono/node-server';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { apiReference } from '@scalar/hono-api-reference';
 import { pinoLogger } from 'hono-pino';
-import { cors } from 'hono/cors';
 import pino from 'pino';
 import pretty from 'pino-pretty';
 import { notFound, onError } from 'stoker/middlewares';

@@ -1,0 +1,1 @@
+ALTER TABLE `loan` ADD `paid` integer DEFAULT 0;
