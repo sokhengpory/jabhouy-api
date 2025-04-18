@@ -2,9 +2,10 @@
 	"name": "jabhouy-api",
 	"type": "module",
 	"scripts": {
-		"dev": "tsx watch --env-file=.env src/index.ts",
-		"build": "tsc && tsc-alias",
-		"start": "node dist/src/index.js",
+		"start": "wrangler dev",
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy --minify",
+		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
 		"check": "biome check --write src",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
@@ -12,7 +13,6 @@
 		"db:push": "drizzle-kit push"
 	},
 	"dependencies": {
-		"@hono/node-server": "^1.14.0",
 		"@hono/zod-openapi": "^0.19.2",
 		"@hono/zod-validator": "^0.4.3",
 		"@libsql/client": "^0.14.0",
@@ -33,14 +33,11 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@types/node": "^22.14.0",
+		"@types/node": "^22.14.1",
 		"drizzle-kit": "^0.30.6",
 		"pino-pretty": "^13.0.0",
-		"tsc-alias": "^1.8.13",
 		"tsx": "^4.19.3",
-		"typescript": "^5.8.2"
-	},
-	"engines": {
-		"node": ">=22"
+		"typescript": "^5.8.2",
+		"wrangler": "^4.12.0"
 	}
 }

@@ -1,8 +1,12 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { openAPI, username } from 'better-auth/plugins';
-import { db } from '~/db';
+import { createDb } from '~/db';
 import * as schema from '~/db/schema';
+import { parseEnv } from '~/env';
+
+const env = parseEnv(process.env);
+const db = createDb(env);
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {

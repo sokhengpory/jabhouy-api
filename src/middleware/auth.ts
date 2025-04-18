@@ -1,14 +1,18 @@
 import type { MiddlewareHandler } from 'hono';
 import { auth } from '~/lib/auth';
+import type { AppBindings } from '~/lib/type';
 
-export const authMiddleware: MiddlewareHandler = async (c, next) => {
+export const authMiddleware: MiddlewareHandler<AppBindings> = async (
+	c,
+	next,
+) => {
 	if (c.req.path.startsWith('/auth') || c.req.path.startsWith('/privacy')) {
 		return next();
 	}
 
 	if (
 		c.req.path.startsWith('/reference') ||
-		(c.req.path.startsWith('/docs') && process.env.NODE_ENV !== 'production')
+		(c.req.path.startsWith('/docs') && c.env.NODE_ENV !== 'production')
 	) {
 		return next();
 	}

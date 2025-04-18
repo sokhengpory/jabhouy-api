@@ -1,47 +1,36 @@
-import { serve } from '@hono/node-server';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { apiReference } from '@scalar/hono-api-reference';
-import { pinoLogger } from 'hono-pino';
-import pino from 'pino';
-import pretty from 'pino-pretty';
+import { etag } from 'hono/etag';
+import { logger } from 'hono/logger';
 import { notFound, onError } from 'stoker/middlewares';
 import { auth } from './lib/auth';
 import type { AppBindings } from './lib/type';
 import { authMiddleware } from './middleware/auth';
-import { categoryRouter } from './route/category';
-import { customerRouter } from './route/customer';
 import { itemRouter } from './route/items';
-import { loanRouter } from './route/loan';
-import { privacyRouter } from './route/privacy';
-import { uploadRouter } from './route/upload';
+// import { categoryRouter } from './route/category';
+// import { customerRouter } from './route/customer';
+// import { loanRouter } from './route/loan';
+// import { privacyRouter } from './route/privacy';
+// import { uploadRouter } from './route/upload';
 
-const openApiApp = new OpenAPIHono<AppBindings>();
+const app = new OpenAPIHono<AppBindings>();
 
-openApiApp.use(authMiddleware);
-openApiApp.use(
-	pinoLogger({
-		pino: pino(
-			{
-				level: process.env.LOG_LEVEL || 'info',
-			},
-			process.env.NODE_ENV === 'production' ? undefined : pretty(),
-		),
-	}),
-);
+app.use(authMiddleware);
+app.use(etag(), logger());
 
-openApiApp.notFound(notFound);
-openApiApp.onError(onError);
+app.notFound(notFound);
+app.onError(onError);
 
-openApiApp.on(['POST', 'GET'], '/auth/**', (c) => auth.handler(c.req.raw));
+app.on(['POST', 'GET'], '/auth/**', (c) => auth.handler(c.req.raw));
 
-openApiApp.route('/items', itemRouter);
-openApiApp.route('/categories', categoryRouter);
-openApiApp.route('/customers', customerRouter);
-openApiApp.route('/loans', loanRouter);
-openApiApp.route('/upload', uploadRouter);
-openApiApp.route('/privacy', privacyRouter);
+app.route('/items', itemRouter);
+// app.route('/categories', categoryRouter);
+// app.route('/customers', customerRouter);
+// app.route('/loans', loanRouter);
+// app.route('/upload', uploadRouter);
+// app.route('/privacy', privacyRouter);
 
-openApiApp.doc('/docs', {
+app.doc('/docs', {
 	openapi: '3.0.0',
 	info: {
 		version: '1.0.0',
@@ -49,7 +38,7 @@ openApiApp.doc('/docs', {
 	},
 });
 
-openApiApp.get(
+app.get(
 	'/reference',
 	apiReference({
 		theme: 'kepler',
@@ -62,12 +51,4 @@ openApiApp.get(
 	}),
 );
 
-serve(
-	{
-		fetch: openApiApp.fetch,
-		port: 3000,
-	},
-	() => {
-		console.log('Server is running');
-	},
-);
+export default app;
