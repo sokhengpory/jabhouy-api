@@ -2,7 +2,7 @@ import { createRoute } from '@hono/zod-openapi';
 import { eq, getTableColumns } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
-import { db } from '~/db';
+import { createDb } from '~/db';
 import {
 	category,
 	insertItemSchema,
@@ -31,6 +31,7 @@ export const createItemHandler: AppRouteHandler<
 > = async (c) => {
 	const body = c.req.valid('json');
 	const user = c.var.user;
+	const db = createDb(c.env);
 
 	const { userId, categoryId, ...rest } = getTableColumns(item);
 

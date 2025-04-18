@@ -13,7 +13,7 @@ import {
 } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent } from 'stoker/openapi/helpers';
-import { db } from '~/db';
+import { createDb } from '~/db';
 import { customer, loan, selectLoanSchema } from '~/db/schema';
 import type { AppRouteHandler } from '~/lib/type';
 
@@ -65,8 +65,8 @@ export const listLoanHandler: AppRouteHandler<typeof listLoanRoute> = async (
 		to,
 		paid,
 	} = c.req.valid('query');
-
 	const user = c.var.user;
+	const db = createDb(c.env);
 
 	const { userId, customerId: loanCustomerId, ...rest } = getTableColumns(loan);
 

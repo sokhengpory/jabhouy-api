@@ -3,7 +3,7 @@ import { and, eq, getTableColumns } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
-import { db } from '~/db';
+import { createDb } from '~/db';
 import {
 	customer,
 	selectCustomerSchema,
@@ -35,34 +35,24 @@ export const updateCustomerHandler: AppRouteHandler<
 	const { id } = c.req.valid('param');
 	const body = c.req.valid('json');
 	const user = c.var.user;
+	const db = createDb(c.env);
 
 	const { userId, ...rest } = getTableColumns(customer);
 
-	const exists = await db
-		.select({ id: customer.id })
-		.from(customer)
+	const [updated] = await db
+		.update(customer)
+		.set(body)
 		.where(and(eq(customer.id, id), eq(customer.userId, user.id)))
-		.get();
+		.returning(rest);
 
-	if (!exists) {
+	if (!updated) {
 		return c.json(
-			{ message: HttpStatusPhrases.NOT_FOUND },
+			{
+				message: HttpStatusPhrases.NOT_FOUND,
+			},
 			HttpStatusCodes.NOT_FOUND,
 		);
 	}
 
-	await db
-		.update(customer)
-		.set(body)
-		.where(and(eq(customer.id, id), eq(customer.userId, user.id)));
-
-	const result = await db
-		.select({
-			...rest,
-		})
-		.from(customer)
-		.where(eq(customer.id, id))
-		.get();
-
-	return c.json(result);
+	return c.json(updated, HttpStatusCodes.OK);
 };

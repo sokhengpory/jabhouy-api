@@ -9,7 +9,7 @@ import {
 } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent } from 'stoker/openapi/helpers';
-import { db } from '~/db';
+import { createDb } from '~/db';
 import { category as categoryTable, item, selectItemSchema } from '~/db/schema';
 import type { AppRouteHandler } from '~/lib/type';
 
@@ -46,6 +46,7 @@ export const listItemHandler: AppRouteHandler<typeof listItemRoute> = async (
 ) => {
 	const user = c.var.user;
 	const { search, page, limit, category } = c.req.valid('query');
+	const db = createDb(c.env);
 
 	const offset = (page - 1) * limit;
 

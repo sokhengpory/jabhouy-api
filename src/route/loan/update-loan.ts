@@ -3,7 +3,7 @@ import { and, eq, getTableColumns } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
-import { db } from '~/db';
+import { createDb } from '~/db';
 import {
 	customer,
 	loan,
@@ -33,7 +33,7 @@ export const updateLoanHandler: AppRouteHandler<
 	const { id } = c.req.valid('param');
 	const body = c.req.valid('json');
 	const user = c.var.user;
-
+	const db = createDb(c.env);
 	const [existingLoan] = await db
 		.select()
 		.from(loan)

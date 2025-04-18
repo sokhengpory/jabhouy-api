@@ -3,8 +3,8 @@ import { and, eq, getTableColumns } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent } from 'stoker/openapi/helpers';
-import { db } from '~/db';
-import { loan, selectLoanSchema } from '~/db/schema';
+import { createDb } from '~/db';
+import { customer, loan, selectLoanSchema } from '~/db/schema';
 import { idParamSchema, notFoundSchema } from '~/lib/constants';
 import type { AppRouteHandler } from '~/lib/type';
 
@@ -26,19 +26,27 @@ export const getLoanHandler: AppRouteHandler<typeof getLoanRoute> = async (
 ) => {
 	const { id } = c.req.valid('param');
 	const user = c.var.user;
+	const db = createDb(c.env);
 
-	const { userId, ...rest } = getTableColumns(loan);
+	const { userId, customerId, ...rest } = getTableColumns(loan);
 
 	const [result] = await db
 		.select({
 			...rest,
+			customer: {
+				id: customer.id,
+				name: customer.name,
+			},
 		})
 		.from(loan)
+		.leftJoin(customer, eq(loan.customerId, customer.id))
 		.where(and(eq(loan.id, id), eq(loan.userId, user.id)));
 
 	if (!result) {
 		return c.json(
-			{ message: HttpStatusPhrases.NOT_FOUND },
+			{
+				message: HttpStatusPhrases.NOT_FOUND,
+			},
 			HttpStatusCodes.NOT_FOUND,
 		);
 	}

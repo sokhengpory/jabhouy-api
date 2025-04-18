@@ -3,7 +3,7 @@ import { and, eq, getTableColumns } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent } from 'stoker/openapi/helpers';
-import { db } from '~/db';
+import { createDb } from '~/db';
 import { category, item, selectItemSchema } from '~/db/schema';
 import { notFoundSchema } from '~/lib/constants';
 import type { AppRouteHandler } from '~/lib/type';
@@ -26,8 +26,9 @@ export const getItemRoute = createRoute({
 export const getItemHandler: AppRouteHandler<typeof getItemRoute> = async (
 	c,
 ) => {
-	const { id } = c.req.valid('param');
 	const user = c.var.user;
+	const { id } = c.req.valid('param');
+	const db = createDb(c.env);
 
 	const { userId, categoryId, ...rest } = getTableColumns(item);
 
@@ -45,7 +46,9 @@ export const getItemHandler: AppRouteHandler<typeof getItemRoute> = async (
 
 	if (!result) {
 		return c.json(
-			{ message: HttpStatusPhrases.NOT_FOUND },
+			{
+				message: HttpStatusPhrases.NOT_FOUND,
+			},
 			HttpStatusCodes.NOT_FOUND,
 		);
 	}

@@ -4,7 +4,7 @@ import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent } from 'stoker/openapi/helpers';
 import { createMessageObjectSchema } from 'stoker/openapi/schemas';
-import { db } from '~/db';
+import { createDb } from '~/db';
 import { item } from '~/db/schema';
 import { notFoundSchema } from '~/lib/constants';
 import type { AppRouteHandler } from '~/lib/type';
@@ -30,20 +30,30 @@ export const deleteItemRoute = createRoute({
 export const deleteItemHandler: AppRouteHandler<
 	typeof deleteItemRoute
 > = async (c) => {
+	const user = c.var.user;
 	const { id } = c.req.valid('param');
-	const userId = c.var.user.id;
+	const db = createDb(c.env);
 
-	const [deletedItem] = await db
+	const [deleted] = await db
 		.delete(item)
-		.where(and(eq(item.id, id), eq(item.userId, userId)))
-		.returning();
+		.where(and(eq(item.id, id), eq(item.userId, user.id)))
+		.returning({
+			id: item.id,
+		});
 
-	if (!deletedItem) {
+	if (!deleted) {
 		return c.json(
-			{ message: HttpStatusPhrases.NOT_FOUND },
+			{
+				message: HttpStatusPhrases.NOT_FOUND,
+			},
 			HttpStatusCodes.NOT_FOUND,
 		);
 	}
 
-	return c.json({ message: HttpStatusPhrases.OK }, HttpStatusCodes.OK);
+	return c.json(
+		{
+			message: HttpStatusPhrases.OK,
+		},
+		HttpStatusCodes.OK,
+	);
 };

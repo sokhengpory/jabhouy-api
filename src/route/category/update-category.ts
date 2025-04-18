@@ -4,7 +4,7 @@ import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
 import { IdParamsSchema } from 'stoker/openapi/schemas';
-import { db } from '~/db';
+import { createDb } from '~/db';
 import { category, selectCategorySchema } from '~/db/schema/category.schema';
 import { notFoundSchema } from '~/lib/constants';
 import type { AppRouteHandler } from '~/lib/type';
@@ -36,22 +36,25 @@ export const updateCategoryRoute = createRoute({
 export const updateCategoryHandler: AppRouteHandler<
 	typeof updateCategoryRoute
 > = async (c) => {
-	const userId = c.var.user.id;
 	const { id } = c.req.valid('param');
-	const data = c.req.valid('json');
+	const body = c.req.valid('json');
+	const user = c.var.user;
+	const db = createDb(c.env);
 
-	const [updatedCategory] = await db
+	const [updated] = await db
 		.update(category)
-		.set(data)
-		.where(and(eq(category.id, id), eq(category.userId, userId)))
+		.set(body)
+		.where(and(eq(category.id, id), eq(category.userId, user.id)))
 		.returning();
 
-	if (!updatedCategory) {
+	if (!updated) {
 		return c.json(
-			{ message: HttpStatusPhrases.NOT_FOUND },
+			{
+				message: HttpStatusPhrases.NOT_FOUND,
+			},
 			HttpStatusCodes.NOT_FOUND,
 		);
 	}
 
-	return c.json(updatedCategory, HttpStatusCodes.OK);
+	return c.json(updated, HttpStatusCodes.OK);
 };

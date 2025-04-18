@@ -3,7 +3,7 @@ import { and, eq, getTableColumns } from 'drizzle-orm';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent } from 'stoker/openapi/helpers';
-import { db } from '~/db';
+import { createDb } from '~/db';
 import { customer, selectCustomerSchema } from '~/db/schema';
 import { idParamSchema, notFoundSchema } from '~/lib/constants';
 import type { AppRouteHandler } from '~/lib/type';
@@ -29,6 +29,7 @@ export const getCustomerHandler: AppRouteHandler<
 > = async (c) => {
 	const { id } = c.req.valid('param');
 	const user = c.var.user;
+	const db = createDb(c.env);
 
 	const { userId, ...rest } = getTableColumns(customer);
 

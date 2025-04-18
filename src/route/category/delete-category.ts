@@ -4,7 +4,7 @@ import * as HttpStatusCodes from 'stoker/http-status-codes';
 import * as HttpStatusPhrases from 'stoker/http-status-phrases';
 import { jsonContent } from 'stoker/openapi/helpers';
 import { IdParamsSchema } from 'stoker/openapi/schemas';
-import { db } from '~/db';
+import { createDb } from '~/db';
 import { category } from '~/db/schema/category.schema';
 import { notFoundSchema } from '~/lib/constants';
 import type { AppRouteHandler } from '~/lib/type';
@@ -33,6 +33,7 @@ export const deleteCategoryHandler: AppRouteHandler<
 > = async (c) => {
 	const userId = c.var.user.id;
 	const { id } = c.req.valid('param');
+	const db = createDb(c.env);
 
 	const [deletedCategory] = await db
 		.delete(category)

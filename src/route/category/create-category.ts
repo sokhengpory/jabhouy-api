@@ -1,7 +1,7 @@
 import { createRoute } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
-import { db } from '~/db';
+import { createDb } from '~/db';
 import {
 	category,
 	insertCategorySchema,
@@ -29,6 +29,7 @@ export const createCategoryHandler: AppRouteHandler<
 > = async (c) => {
 	const userId = c.var.user.id;
 	const data = c.req.valid('json');
+	const db = createDb(c.env);
 
 	const [categories] = await db
 		.insert(category)
