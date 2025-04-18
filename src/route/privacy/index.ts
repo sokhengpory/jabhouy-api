@@ -90,7 +90,6 @@ const privacyHTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
-privacyRouter
-    .get('/', (c) => {
-        return c.html(privacyHTML);
-    });
+privacyRouter.get('/', (c) => {
+	return c.html(privacyHTML);
+});

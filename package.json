@@ -2,7 +2,6 @@
 	"name": "jabhouy-api",
 	"type": "module",
 	"scripts": {
-		"start": "wrangler dev",
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy --minify",
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings",

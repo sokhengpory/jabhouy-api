@@ -1,41 +1,41 @@
 {
-  "version": "7",
-  "dialect": "sqlite",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "6",
-      "when": 1742911751495,
-      "tag": "0000_whole_outlaw_kid",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1743482358138,
-      "tag": "0001_daffy_owl",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1743739737376,
-      "tag": "0002_gigantic_scream",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1744036414033,
-      "tag": "0003_puzzling_otto_octavius",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1744983855843,
-      "tag": "0004_overconfident_diamondback",
-      "breakpoints": true
-    }
-  ]
+	"version": "7",
+	"dialect": "sqlite",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "6",
+			"when": 1742911751495,
+			"tag": "0000_whole_outlaw_kid",
+			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "6",
+			"when": 1743482358138,
+			"tag": "0001_daffy_owl",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "6",
+			"when": 1743739737376,
+			"tag": "0002_gigantic_scream",
+			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "6",
+			"when": 1744036414033,
+			"tag": "0003_puzzling_otto_octavius",
+			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "6",
+			"when": 1744983855843,
+			"tag": "0004_overconfident_diamondback",
+			"breakpoints": true
+		}
+	]
 }
